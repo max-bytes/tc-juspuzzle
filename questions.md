@@ -1,0 +1,1 @@
+hat der PC fix eine tastatur? und nicht nur ein touchscreen?
