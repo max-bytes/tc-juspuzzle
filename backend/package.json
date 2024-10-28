@@ -1,0 +1,11 @@
+{
+  "name": "tricky-city-juspuzzle-backend",
+  "version": "0.1.0",
+  "description": "",
+  "devDependencies": {
+    "ftp-deploy": "^2.3.6"
+  },
+  "scripts": {
+    "deploy": ". ./.env && FTP_PASSWORD=$FTP_PASSWORD node deploy"
+  }
+}

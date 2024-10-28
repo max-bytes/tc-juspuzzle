@@ -64,13 +64,6 @@ const correctGridNumbers = [
 ]
 const initialGridNumbers = Array(20).fill(Array(10).fill(undefined))
 
-
-// [
-//     [undefined,undefined,undefined],
-//     [undefined,undefined,undefined],
-//     [undefined,undefined,undefined],
-// ]
-
 function Cell({row, col, figureIndex, neighborFigureIndices, tabIndex, gridNumber, isCorrect, updateGridNumber} = props) {
 
     const handleOnKeyPressed = (e) => {
