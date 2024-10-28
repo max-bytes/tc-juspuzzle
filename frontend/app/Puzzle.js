@@ -3,25 +3,73 @@
 import styles from "./page.module.css";
 import { useEffect, useState } from "react";
 
-const numFigures = 3;
+// const numFigures = 3;
+// const gridFigureIndices = [
+//     [0,0,1],
+//     [0,1,1],
+//     [2,2,2],
+// ]
+// const correctGridNumbers = [
+//     [3,3,4],
+//     [3,4,4],
+//     [5,5,5],
+// ]
+// const initialGridNumbers = Array(3).fill(Array(3).fill(undefined))
 
+const numFigures = 30;
 const gridFigureIndices = [
-    [0,0,1],
-    [0,1,1],
-    [2,2,2],
-]
+    [1,2,2,3,3,4,4,5,5,5],
+    [1,2,2,3,4,4,4,5,5,5],
+    [1,2,6,6,6,6,6,6,7,5],
+    [1,1,8,6,9,9,9,9,7,5],
+    [10,11,8,8,8,8,8,9,7,7],
+    [10,11,12,13,13,8,8,9,7,14],
+    [10,11,12,13,13,13,15,9,14,14],
+    [10,11,12,12,12,15,15,14,14,14],
+    [10,11,11,11,12,15,15,15,14,16],
+    [17,11,11,11,18,15,15,18,14,16],
+    [17,11,17,17,18,18,18,18,16,16],
+    [17,17,17,19,18,20,20,18,16,16],
+    [19,19,19,19,20,20,20,20,16,16],
+    [19,19,19,19,21,20,20,21,22,22],
+    [19,23,24,24,21,21,21,21,22,22],
+    [23,23,23,24,25,25,26,26,26,22],
+    [23,23,24,24,24,25,25,26,26,22],
+    [23,27,28,24,25,25,25,25,26,26],
+    [27,27,28,28,28,29,25,29,30,30],
+    [27,27,27,28,28,29,29,29,30,30],
 
+]
 const correctGridNumbers = [
-    [3,3,4],
-    [3,4,4],
-    [5,5,5],
+    [2,3,4,3,1,4,4,9,8,9],
+    [4,2,8,5,5,4,3,2,7,8],
+    [7,2,6,3,3,5,4,3,6,3],
+    [1,3,3,4,4,4,5,1,8,5],
+    [6,7,7,5,5,2,2,3,4,2],
+    [6,8,9,8,6,3,1,2,9,6],
+    [3,9,8,9,7,4,1,4,9,7],
+    [4,6,9,7,2,6,5,6,8,3],
+    [9,7,4,8,1,7,6,8,7,7],
+    [8,5,3,6,1,8,9,1,1,8],
+    [7,6,4,9,3,9,8,3,3,1],
+    [5,4,5,5,2,1,7,1,5,7],
+    [6,7,6,8,4,2,9,4,6,6],
+    [7,4,7,2,7,3,2,5,2,5],
+    [1,3,6,6,8,4,3,1,3,4],
+    [2,4,5,1,1,5,2,1,2,2],
+    [3,7,1,4,2,6,4,2,5,1],
+    [4,8,2,6,1,7,5,4,6,1],
+    [5,9,3,5,3,9,3,7,7,7],
+    [6,8,4,8,4,3,6,8,1,9],
 ]
+const initialGridNumbers = Array(20).fill(Array(10).fill(undefined))
 
-const initialGridNumbers = [
-    [undefined,undefined,undefined],
-    [undefined,undefined,undefined],
-    [undefined,undefined,undefined],
-]
+
+// [
+//     [undefined,undefined,undefined],
+//     [undefined,undefined,undefined],
+//     [undefined,undefined,undefined],
+// ]
 
 function Cell({row, col, figureIndex, neighborFigureIndices, tabIndex, gridNumber, isCorrect, updateGridNumber} = props) {
 
@@ -40,7 +88,7 @@ function Cell({row, col, figureIndex, neighborFigureIndices, tabIndex, gridNumbe
     const paddings = neighborSameFigure.map(nsf => nsf ? "2px" : "0px");
     const correctClass = isCorrect ? styles.correct : styles.incorrect;
 
-    return <div onKeyDown={handleOnKeyPressed} className={`${styles.cell} ${correctClass}`} tabIndex={tabIndex} style={{width: "100px", height: "100px", display: "inline-flex", justifyContent: 'center', alignItems: 'center', margin: "-1px",
+    return <div onKeyDown={handleOnKeyPressed} className={`${styles.cell} ${correctClass}`} tabIndex={tabIndex} style={{width: "80px", height: "40px", display: "inline-flex", justifyContent: 'center', alignItems: 'center', margin: "-1px",
         borderTop: borders[0], borderRight: borders[1], borderBottom: borders[2], borderLeft: borders[3],
         paddingTop: paddings[0], paddingRight: paddings[1], paddingBottom: paddings[2], paddingLeft: paddings[3] }}>
         {gridNumber ?? '\u00A0'}
