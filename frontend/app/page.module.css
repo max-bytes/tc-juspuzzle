@@ -8,6 +8,10 @@
   font-size: 20px;
   user-select: none;
   background-color:white;
+  background-image: url(/tc-juspuzzle/lock.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
 }
 
 .puzzle .cell:focus-visible {
@@ -31,6 +35,10 @@
 
 .incorrect {
   color: black;
+}
+
+.puzzle .cell.hasNumber {
+  background-image: none;
 }
 
 .page {

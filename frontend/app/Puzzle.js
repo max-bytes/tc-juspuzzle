@@ -80,8 +80,9 @@ function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, grid
     const borders = neighborSameFigure.map(nsf => nsf ? "none" : "2px solid black");
     const paddings = neighborSameFigure.map(nsf => nsf ? "2px" : "0px");
     const correctClass = isCorrect ? styles.correct : styles.incorrect;
+    const hasNumberClass = gridNumber ? styles.hasNumber : undefined;
 
-    return <div onKeyDown={handleOnKeyPressed} className={`${styles.cell} ${correctClass}`} tabIndex={tabIndex} style={{width: `${width}px`, height: `${height}px`, display: "inline-flex", justifyContent: 'center', alignItems: 'center', margin: "-1px",
+    return <div onKeyDown={handleOnKeyPressed} className={`${styles.cell} ${correctClass} ${hasNumberClass}`} tabIndex={tabIndex} style={{width: `${width}px`, height: `${height}px`, display: "inline-flex", justifyContent: 'center', alignItems: 'center', margin: "-1px",
         borderTop: borders[0], borderRight: borders[1], borderBottom: borders[2], borderLeft: borders[3],
         paddingTop: paddings[0], paddingRight: paddings[1], paddingBottom: paddings[2], paddingLeft: paddings[3] }}>
         {gridNumber ?? '\u00A0'}
