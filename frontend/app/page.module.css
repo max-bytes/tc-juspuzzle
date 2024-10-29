@@ -18,6 +18,9 @@
 
 .page {
   display: flex;
+  justify-content: center;
+  flex-grow: 1;
+  gap: 30px;
 }
 
 /* .page {

@@ -106,8 +106,12 @@ $app->options('/{routes:.+}', function ($request, $response, $args) {
 });
 $app->add(function ($request, $handler) {
     $response = $handler->handle($request);
+    $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
+    $allowedOrigin = 'http://localhost:3000';
+    if ($origin === 'https://max-bytes.github.io')
+        $allowedOrigin = $origin;
     return $response
-            ->withHeader('Access-Control-Allow-Origin', 'http://localhost:3000/, https://max-bytes.github.io/')
+            ->withHeader('Access-Control-Allow-Origin', $allowedOrigin)
             ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });

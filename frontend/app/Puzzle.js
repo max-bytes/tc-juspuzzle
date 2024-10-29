@@ -135,7 +135,7 @@ export default function Puzzle() {
                     })
                 }} />);
         }
-        rows.push(<div key={y}>{rowCells}</div>);
+        rows.push(<div key={y} style={{whiteSpace: 'nowrap', minWidth: '0px'}}>{rowCells}</div>);
     }
 
     return <div className={styles.puzzle}>
