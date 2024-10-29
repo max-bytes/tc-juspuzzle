@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     output: 'export',
-    basePath: '/docs'
+    basePath: '/tc-juspuzzle'
 };
 
 export default nextConfig;
