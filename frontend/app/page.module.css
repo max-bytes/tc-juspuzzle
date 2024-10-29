@@ -1,7 +1,13 @@
 
+.puzzle {
+  background-image: url(/cabinet.png);
+  background-size: cover;
+}
+
 .puzzle .cell {
   font-size: 20px;
   user-select: none;
+  background-color:white;
 }
 
 .puzzle .cell:focus-visible {
@@ -13,7 +19,18 @@
 }
 
 .correct {
-  background-color: #00ff00;
+  /* background-color: #00ff00; */
+  transition-duration: 0.5s;
+  transition-timing-function: ease-out;
+  opacity: 0;
+  pointer-events:none;
+  scale:4;
+  color:#00000000;
+  transition-property: opacity, scale;
+}
+
+.incorrect {
+  color: black;
 }
 
 .page {

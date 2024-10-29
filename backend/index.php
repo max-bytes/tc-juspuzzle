@@ -2,6 +2,7 @@
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
+use Slim\Exception\HttpNotFoundException;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -10,6 +11,7 @@ error_reporting(-1);
 $app = AppFactory::create();
 
 $app->setBasePath('/juspuzzle');
+$app->addBodyParsingMiddleware();
 
 $filePath = "data.json";
 
@@ -101,6 +103,51 @@ $app->post('/start', function (Request $request, Response $response, array $args
     return $response;
 });
 
+
+$app->post('/finish', function (Request $request, Response $response, array $args) use ($filePath) {
+
+    $params = (array)$request->getParsedBody();
+
+    $teamID = $params['id'] ?? null;
+    if ($teamID === null) {
+        $response->getBody()->write("Invalid team ID specified");
+        return $response->withStatus(501);
+    }
+    $teamID = intval($teamID, 10);
+
+    $endTime = date("c");
+
+    $jsonString = file_get_contents($filePath);
+    if ($jsonString === false)
+    {
+        $response->getBody()->write("Error reading file");
+        return $response->withStatus(501);
+    }
+
+    $jsonData = json_decode($jsonString, true);
+    if ($jsonData === null)
+    {
+        $response->getBody()->write("Error parsing file");
+        return $response->withStatus(501);
+    }
+
+    $teamExists =& findTeamByID($jsonData, $teamID);
+    if (!$teamExists) 
+    {
+        $response->getBody()->write("Team with id $teamID does not exist");
+        return $response->withStatus(501);
+    }
+
+    $teamExists['endTime'] = $endTime;
+
+    if (file_put_contents($filePath, json_encode($jsonData, JSON_PRETTY_PRINT )) === false) {
+        $response->getBody()->write("Could not write file");
+        return $response->withStatus(501);
+    }
+
+    return $response;
+});
+
 $app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response;
 });
@@ -116,23 +163,34 @@ $app->add(function ($request, $handler) {
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
 
+/**
+ * Catch-all route to serve a 404 Not Found page if none of the routes match
+ * NOTE: make sure this route is defined last
+ */
+$app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function ($request, $response) {
+    throw new HttpNotFoundException($request);
+});
+
 $app->run();
 
-function findTeamByID($data, $id){
-    foreach ( $data["teams"] as $element ) {
+function & findTeamByID(&$data, $id){
+
+    foreach ( $data["teams"] as &$element ) {
         if ( $id === $element['id'] ) {
             return $element;
         }
     }
-    return false;
+    $null = null;
+    return $null;
 }
-function findTeamByName($data, $name){
-    foreach ( $data["teams"] as $element ) {
+function & findTeamByName(&$data, $name){
+    foreach ( $data["teams"] as &$element ) {
         if ( $name === $element['name'] ) {
             return $element;
         }
     }
-    return false;
+    $null = null;
+    return $null;
 }
 
 /*

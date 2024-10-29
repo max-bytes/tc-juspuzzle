@@ -88,30 +88,50 @@ function Cell({row, col, figureIndex, neighborFigureIndices, tabIndex, gridNumbe
     </div>;
 }
 
-export default function Puzzle() {
+export default function Puzzle({teams, onSolvedF} = props) {
 
     const [currentGridNumbers, setCurrentGridNumbers] = useState(initialGridNumbers);
-    const [correctFigures, setCorrectFigures] = useState(Array.apply(null, Array(numFigures)).map(function (x, i) { return false; }));
+    const correctFigures = Array.apply(null, Array(numFigures)).map(function (x, i) { return teams.findIndex(t => t.id === i + 1 && t.isFinished) !== -1; });
+
+    // useEffect(() => {
+    //     setCorrectFigures(old => {
+    //         let newNumbers = Array.apply(null, Array(numFigures)).map(function (x, i) { return true; });
+    //         for(var index = 0;index < numFigures;index++) {
+    //             let myContinue = false;
+    //             for(let y = 0;y < gridFigureIndices.length && !myContinue;y++) {
+    //                 for(let x = 0;x < gridFigureIndices[y].length && !myContinue;x++) {
+    //                     if (gridFigureIndices[y][x] == index && currentGridNumbers[y][x] != correctGridNumbers[y][x])
+    //                     {
+    //                         newNumbers[index] = false;
+    //                         myContinue = true;
+    //                     }
+    //                 }
+    //             }
+    //         }
+
+    //         return newNumbers;
+    //     });
+    // }, [currentGridNumbers, setCorrectFigures]);
 
     useEffect(() => {
-        setCorrectFigures(old => {
-            let newNumbers = Array.apply(null, Array(numFigures)).map(function (x, i) { return true; });
-            for(var index = 0;index < numFigures;index++) {
-                let myContinue = false;
-                for(let y = 0;y < gridFigureIndices.length && !myContinue;y++) {
-                    for(let x = 0;x < gridFigureIndices[y].length && !myContinue;x++) {
-                        if (gridFigureIndices[y][x] == index && currentGridNumbers[y][x] != correctGridNumbers[y][x])
-                        {
-                            newNumbers[index] = false;
-                            myContinue = true;
-                        }
-                    }
+        for(var index = 0;index < numFigures;index++) {
+
+            if (correctFigures[index]) // figure already solved
+                continue;
+
+            let isCorrect = true;
+            for(let y = 0;y < gridFigureIndices.length && isCorrect;y++) {
+                for(let x = 0;x < gridFigureIndices[y].length && isCorrect;x++) {
+                    if (gridFigureIndices[y][x] == index + 1 && currentGridNumbers[y][x] != correctGridNumbers[y][x])
+                        isCorrect = false;
                 }
             }
 
-            return newNumbers;
-        });
-    }, [currentGridNumbers, setCorrectFigures]);
+            if (isCorrect) {
+                onSolvedF(index + 1);
+            }
+        }
+    }, [currentGridNumbers, onSolvedF]);
     
     let rows = [];
     for(let y = 0;y < gridFigureIndices.length;y++) {
@@ -124,7 +144,7 @@ export default function Puzzle() {
                 figureIndex={figureIndex} 
                 neighborFigureIndices={[gridFigureIndices[y - 1]?.[x],gridFigureIndices[y]?.[x + 1],gridFigureIndices[y + 1]?.[x],gridFigureIndices[y]?.[x - 1]]}
                 gridNumber={currentGridNumbers[y][x]}
-                isCorrect={correctFigures[figureIndex]}
+                isCorrect={correctFigures[figureIndex - 1]}
                 updateGridNumber={(newNumber) => {
                     setCurrentGridNumbers(oldNumbers => {
                         let newGridNumbers = currentGridNumbers.map(function(arr) {
