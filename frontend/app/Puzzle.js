@@ -64,7 +64,7 @@ const correctGridNumbers = [
 ]
 const initialGridNumbers = Array(20).fill(Array(10).fill(undefined))
 
-function Cell({row, col, figureIndex, neighborFigureIndices, tabIndex, gridNumber, isCorrect, updateGridNumber} = props) {
+function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, gridNumber, isCorrect, updateGridNumber} = props) {
 
     const handleOnKeyPressed = (e) => {
         // console.log(e);
@@ -81,7 +81,7 @@ function Cell({row, col, figureIndex, neighborFigureIndices, tabIndex, gridNumbe
     const paddings = neighborSameFigure.map(nsf => nsf ? "2px" : "0px");
     const correctClass = isCorrect ? styles.correct : styles.incorrect;
 
-    return <div onKeyDown={handleOnKeyPressed} className={`${styles.cell} ${correctClass}`} tabIndex={tabIndex} style={{width: "80px", height: "40px", display: "inline-flex", justifyContent: 'center', alignItems: 'center', margin: "-1px",
+    return <div onKeyDown={handleOnKeyPressed} className={`${styles.cell} ${correctClass}`} tabIndex={tabIndex} style={{width: `${width}px`, height: `${height}px`, display: "inline-flex", justifyContent: 'center', alignItems: 'center', margin: "-1px",
         borderTop: borders[0], borderRight: borders[1], borderBottom: borders[2], borderLeft: borders[3],
         paddingTop: paddings[0], paddingRight: paddings[1], paddingBottom: paddings[2], paddingLeft: paddings[3] }}>
         {gridNumber ?? '\u00A0'}
@@ -132,6 +132,9 @@ export default function Puzzle({teams, onSolvedF} = props) {
             }
         }
     }, [currentGridNumbers, onSolvedF]);
+
+    const width=80;
+    const height=40;
     
     let rows = [];
     for(let y = 0;y < gridFigureIndices.length;y++) {
@@ -140,7 +143,7 @@ export default function Puzzle({teams, onSolvedF} = props) {
             const matrixIndex = y * gridFigureIndices[y].length + x;
             const figureIndex = gridFigureIndices[y][x];
             rowCells.push(<Cell tabIndex={matrixIndex} key={matrixIndex} 
-                row={y} col={x} 
+                width={width} height={height} 
                 figureIndex={figureIndex} 
                 neighborFigureIndices={[gridFigureIndices[y - 1]?.[x],gridFigureIndices[y]?.[x + 1],gridFigureIndices[y + 1]?.[x],gridFigureIndices[y]?.[x - 1]]}
                 gridNumber={currentGridNumbers[y][x]}
@@ -158,7 +161,7 @@ export default function Puzzle({teams, onSolvedF} = props) {
         rows.push(<div key={y} style={{whiteSpace: 'nowrap', minWidth: '0px'}}>{rowCells}</div>);
     }
 
-    return <div className={styles.puzzle}>
+    return <div className={styles.puzzle} style={{width: `${(width - 2) * gridFigureIndices[0].length}px`, height: `${(height - 2) * gridFigureIndices.length}px`}}>
         {rows}
     </div>;
 }
