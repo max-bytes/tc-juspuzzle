@@ -86,7 +86,7 @@ const cellTypes = [
 ]
 const initialGridNumbers = Array(20).fill(Array(10).fill(undefined))
 
-function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, gridNumber, isCorrect, updateGridNumber, type} = props) {
+function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, gridNumber, isCorrect, updateGridNumber, type, wiggle} = props) {
 
     const handleOnKeyPressed = (e) => {
         // console.log(e);
@@ -104,8 +104,9 @@ function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, grid
     const correctClass = isCorrect ? styles.correct : styles.incorrect;
     const hasNumberClass = gridNumber ? styles.hasNumber : undefined;
     const typeClass = styles[`type${type}`];
+    const wiggleClass = wiggle ? undefined : styles.wiggled;
 
-    return <div onKeyDown={handleOnKeyPressed} className={`${styles.cell} ${correctClass} ${hasNumberClass} ${typeClass}`} tabIndex={tabIndex} style={{width: `${width}px`, height: `${height}px`, display: "inline-flex", justifyContent: 'center', alignItems: 'center', margin: "-1px",
+    return <div onKeyDown={handleOnKeyPressed} className={`${styles.cell} ${correctClass} ${hasNumberClass} ${typeClass} ${wiggleClass}`} tabIndex={tabIndex} style={{width: `${width}px`, height: `${height}px`, display: "inline-flex", justifyContent: 'center', alignItems: 'center', margin: "-1px",
         borderTop: borders[0], borderRight: borders[1], borderBottom: borders[2], borderLeft: borders[3],
         paddingTop: paddings[0], paddingRight: paddings[1], paddingBottom: paddings[2], paddingLeft: paddings[3] }}>
         {gridNumber ?? '\u00A0'}
@@ -116,46 +117,47 @@ export default function Puzzle({teams, onSolvedF} = props) {
 
     const [currentGridNumbers, setCurrentGridNumbers] = useState(initialGridNumbers);
     const correctFigures = Array.apply(null, Array(numFigures)).map(function (x, i) { return teams.findIndex(t => t.id === i + 1 && t.isFinished) !== -1; });
-
-    // useEffect(() => {
-    //     setCorrectFigures(old => {
-    //         let newNumbers = Array.apply(null, Array(numFigures)).map(function (x, i) { return true; });
-    //         for(var index = 0;index < numFigures;index++) {
-    //             let myContinue = false;
-    //             for(let y = 0;y < gridFigureIndices.length && !myContinue;y++) {
-    //                 for(let x = 0;x < gridFigureIndices[y].length && !myContinue;x++) {
-    //                     if (gridFigureIndices[y][x] == index && currentGridNumbers[y][x] != correctGridNumbers[y][x])
-    //                     {
-    //                         newNumbers[index] = false;
-    //                         myContinue = true;
-    //                     }
-    //                 }
-    //             }
-    //         }
-
-    //         return newNumbers;
-    //     });
-    // }, [currentGridNumbers, setCorrectFigures]);
+    const [wiggle, setWiggle] = useState(false);
+    useEffect(() => {
+        if (wiggle)
+            setWiggle(false);
+    }, [wiggle, setWiggle]);
 
     useEffect(() => {
+        let reset = false;
         for(var index = 0;index < numFigures;index++) {
 
             if (correctFigures[index]) // figure already solved
                 continue;
 
             let isCorrect = true;
-            for(let y = 0;y < gridFigureIndices.length && isCorrect;y++) {
-                for(let x = 0;x < gridFigureIndices[y].length && isCorrect;x++) {
-                    if (gridFigureIndices[y][x] == index + 1 && currentGridNumbers[y][x] != correctGridNumbers[y][x])
-                        isCorrect = false;
+            let isFullyFilled = true;
+            for(let y = 0;y < gridFigureIndices.length && isFullyFilled;y++) {
+                for(let x = 0;x < gridFigureIndices[y].length && isFullyFilled;x++) {
+                    if (gridFigureIndices[y][x] == index + 1) {
+                        if (currentGridNumbers[y][x] === undefined)
+                            isFullyFilled = false;
+                        if (currentGridNumbers[y][x] != correctGridNumbers[y][x])
+                            isCorrect = false;
+                    }
                 }
             }
 
-            if (isCorrect) {
-                onSolvedF(index + 1);
+            if (isFullyFilled) {
+                if (isCorrect) {
+                    onSolvedF(index + 1);
+                } else {
+                    reset = true;
+                }
             }
         }
-    }, [currentGridNumbers, onSolvedF]);
+
+        if (reset) {
+            // reset all grid numbers of incorrectly entered figure
+            setCurrentGridNumbers(initialGridNumbers);
+            setWiggle(true);
+        }
+    }, [currentGridNumbers, setCurrentGridNumbers, setWiggle, onSolvedF]);
 
     const width=40;
     const height=40;
@@ -168,14 +170,15 @@ export default function Puzzle({teams, onSolvedF} = props) {
             const figureIndex = gridFigureIndices[y][x];
             rowCells.push(<Cell tabIndex={matrixIndex} key={matrixIndex} 
                 width={width} height={height} 
-                figureIndex={figureIndex} 
+                figureIndex={figureIndex}
+                wiggle={wiggle}
                 neighborFigureIndices={[gridFigureIndices[y - 1]?.[x],gridFigureIndices[y]?.[x + 1],gridFigureIndices[y + 1]?.[x],gridFigureIndices[y]?.[x - 1]]}
                 gridNumber={currentGridNumbers[y][x]}
                 isCorrect={correctFigures[figureIndex - 1]}
                 type={cellTypes[y][x]}
                 updateGridNumber={(newNumber) => {
                     setCurrentGridNumbers(oldNumbers => {
-                        let newGridNumbers = currentGridNumbers.map(function(arr) {
+                        let newGridNumbers = oldNumbers.map(function(arr) {
                             return arr.slice();
                         });
                         newGridNumbers[y][x] = newNumber;
