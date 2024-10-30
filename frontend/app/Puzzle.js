@@ -62,9 +62,31 @@ const correctGridNumbers = [
     [5,9,3,5,3,9,3,7,7,7],
     [6,8,4,8,4,3,6,8,1,9],
 ]
+const cellTypes = [
+    [3,3,3,3,3,3,3,3,3,4],
+    [2,2,2,2,2,2,2,2,2,4],
+    [2,1,1,1,1,1,1,1,1,4],
+    [2,4,1,4,4,4,4,4,4,4],
+    [2,2,1,2,2,2,2,2,2,4],
+    [2,1,1,1,1,1,1,1,1,4],
+    [2,3,1,3,3,4,3,3,3,4],
+    [2,4,1,4,4,4,4,4,4,4],
+    [1,1,1,1,1,4,1,1,1,4],
+    [1,3,3,3,3,4,3,3,3,3],
+    [1,2,2,2,2,4,2,2,2,3],
+    [1,4,4,4,4,4,4,3,4,3],
+    [4,1,1,1,1,1,1,3,1,3],
+    [4,2,2,2,2,2,2,3,2,2],
+    [4,4,4,4,4,4,4,3,4,4],
+    [4,3,3,3,2,3,3,3,3,3],
+    [4,1,1,1,2,1,1,3,1,1],
+    [4,3,3,3,2,3,3,3,3,3],
+    [4,2,2,2,2,2,2,3,2,3],
+    [4,4,4,4,2,4,4,3,4,3],
+]
 const initialGridNumbers = Array(20).fill(Array(10).fill(undefined))
 
-function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, gridNumber, isCorrect, updateGridNumber} = props) {
+function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, gridNumber, isCorrect, updateGridNumber, type} = props) {
 
     const handleOnKeyPressed = (e) => {
         // console.log(e);
@@ -81,8 +103,9 @@ function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, grid
     const paddings = neighborSameFigure.map(nsf => nsf ? "2px" : "0px");
     const correctClass = isCorrect ? styles.correct : styles.incorrect;
     const hasNumberClass = gridNumber ? styles.hasNumber : undefined;
+    const typeClass = styles[`type${type}`];
 
-    return <div onKeyDown={handleOnKeyPressed} className={`${styles.cell} ${correctClass} ${hasNumberClass}`} tabIndex={tabIndex} style={{width: `${width}px`, height: `${height}px`, display: "inline-flex", justifyContent: 'center', alignItems: 'center', margin: "-1px",
+    return <div onKeyDown={handleOnKeyPressed} className={`${styles.cell} ${correctClass} ${hasNumberClass} ${typeClass}`} tabIndex={tabIndex} style={{width: `${width}px`, height: `${height}px`, display: "inline-flex", justifyContent: 'center', alignItems: 'center', margin: "-1px",
         borderTop: borders[0], borderRight: borders[1], borderBottom: borders[2], borderLeft: borders[3],
         paddingTop: paddings[0], paddingRight: paddings[1], paddingBottom: paddings[2], paddingLeft: paddings[3] }}>
         {gridNumber ?? '\u00A0'}
@@ -134,7 +157,7 @@ export default function Puzzle({teams, onSolvedF} = props) {
         }
     }, [currentGridNumbers, onSolvedF]);
 
-    const width=80;
+    const width=40;
     const height=40;
     
     let rows = [];
@@ -149,6 +172,7 @@ export default function Puzzle({teams, onSolvedF} = props) {
                 neighborFigureIndices={[gridFigureIndices[y - 1]?.[x],gridFigureIndices[y]?.[x + 1],gridFigureIndices[y + 1]?.[x],gridFigureIndices[y]?.[x - 1]]}
                 gridNumber={currentGridNumbers[y][x]}
                 isCorrect={correctFigures[figureIndex - 1]}
+                type={cellTypes[y][x]}
                 updateGridNumber={(newNumber) => {
                     setCurrentGridNumbers(oldNumbers => {
                         let newGridNumbers = currentGridNumbers.map(function(arr) {
