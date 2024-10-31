@@ -1,7 +1,7 @@
 'use client'
 
 import styles from "./page.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 
 // const numFigures = 3;
 // const gridFigureIndices = [
@@ -123,7 +123,8 @@ export default function Puzzle({teams, onSolvedF} = props) {
             setWiggle(false);
     }, [wiggle, setWiggle]);
 
-    useEffect(() => {
+    // NOTE: for some reason, useLayoutEffect is needed instead of useEffect to ensure wiggle goes off
+    useLayoutEffect(() => {
         let reset = false;
         for(var index = 0;index < numFigures;index++) {
 
