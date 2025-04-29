@@ -80,13 +80,13 @@ $app->post('/start', function (Request $request, Response $response, array $args
     if ($teamExists) 
     {
         $response->getBody()->write("Team with id $teamID has already started");
-        return $response->withStatus(501);
+        return $response->withStatus(200); // this is actually ok, we permit this
     }
     $teamExists = findTeamByName($jsonData, $teamName);
     if ($teamExists) 
     {
         $response->getBody()->write("Team with name $teamName has already started");
-        return $response->withStatus(501);
+        return $response->withStatus(400);
     }
 
     array_push($jsonData["teams"], [
@@ -103,8 +103,7 @@ $app->post('/start', function (Request $request, Response $response, array $args
     return $response;
 });
 
-
-$app->post('/finish', function (Request $request, Response $response, array $args) use ($filePath) {
+$app->post('/stop', function (Request $request, Response $response, array $args) use ($filePath) {
 
     $params = (array)$request->getParsedBody();
 
@@ -115,7 +114,6 @@ $app->post('/finish', function (Request $request, Response $response, array $arg
     }
     $teamID = intval($teamID, 10);
 
-    $endTime = date("c");
 
     $jsonString = file_get_contents($filePath);
     if ($jsonString === false)
@@ -138,7 +136,54 @@ $app->post('/finish', function (Request $request, Response $response, array $arg
         return $response->withStatus(501);
     }
 
+    $endTime = date("c");
     $teamExists['endTime'] = $endTime;
+
+    if (file_put_contents($filePath, json_encode($jsonData, JSON_PRETTY_PRINT )) === false) {
+        $response->getBody()->write("Could not write file");
+        return $response->withStatus(501);
+    }
+
+    return $response;
+});
+
+
+$app->post('/finish', function (Request $request, Response $response, array $args) use ($filePath) {
+
+    $params = (array)$request->getParsedBody();
+
+    $teamID = $params['id'] ?? null;
+    if ($teamID === null) {
+        $response->getBody()->write("Invalid team ID specified");
+        return $response->withStatus(501);
+    }
+    $teamID = intval($teamID, 10);
+
+    $jsonString = file_get_contents($filePath);
+    if ($jsonString === false)
+    {
+        $response->getBody()->write("Error reading file");
+        return $response->withStatus(501);
+    }
+
+    $jsonData = json_decode($jsonString, true);
+    if ($jsonData === null)
+    {
+        $response->getBody()->write("Error parsing file");
+        return $response->withStatus(501);
+    }
+
+    $teamExists =& findTeamByID($jsonData, $teamID);
+    if (!$teamExists) 
+    {
+        $response->getBody()->write("Team with id $teamID does not exist");
+        return $response->withStatus(501);
+    }
+
+    $endTime = date("c");
+    $teamExists['isFinished'] = true;
+    if (!array_key_exists('endTime', $teamExists)) // for safety
+        $teamExists['endTime'] = $endTime;
 
     if (file_put_contents($filePath, json_encode($jsonData, JSON_PRETTY_PRINT )) === false) {
         $response->getBody()->write("Could not write file");
