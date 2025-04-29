@@ -51,10 +51,9 @@ export default function Home() {
     let teams = data.teams;
     for(const team of teams) {
         team['startTimeDate'] = new Date(team['startTime']);
-        if (team['endTime'] ?? undefined) {
+        if ((team['endTime'] ?? undefined) && team['isFinished']) {
             team['endTimeDate'] = new Date(team['endTime']);
             team['duration'] = team['endTimeDate'].getTime() - team['startTimeDate'].getTime();
-            team['isFinished'] = true;
         } else {
             team['duration'] = Number.MAX_SAFE_INTEGER;
         }
