@@ -38,7 +38,6 @@ const gridFigureIndices = [
     [23,27,28,24,25,25,25,25,26,26],
     [27,27,28,28,28,29,25,29,30,30],
     [27,27,27,28,28,29,29,29,30,30],
-
 ]
 const correctGridNumbers = [
     [2,3,4,3,1,4,4,9,8,9],
@@ -113,10 +112,10 @@ function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, grid
     </div>;
 }
 
-export default function Puzzle({teams, onSolvedF} = props) {
+export default function Puzzle({solvedPuzzles, onSolvedF} = props) {
 
     const [currentGridNumbers, setCurrentGridNumbers] = useState(initialGridNumbers);
-    const correctFigures = Array.apply(null, Array(numFigures)).map(function (x, i) { return teams.findIndex(t => t.id === i + 1 && t.isFinished) !== -1; });
+    const correctFigures = Array.apply(null, Array(numFigures)).map(function (x, i) { return solvedPuzzles.findIndex(t => t === i + 1) !== -1; });
     const [wiggle, setWiggle] = useState(false);
     useEffect(() => {
         if (wiggle)

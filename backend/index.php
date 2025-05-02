@@ -14,6 +14,7 @@ $app->setBasePath('/juspuzzle');
 $app->addBodyParsingMiddleware();
 
 $filePath = "data.json";
+$filePathPuzzle = "solved_puzzles.json";
 
 // $app->get('/hello/{name}', function (Request $request, Response $response, array $args) {
 //     $name = $args['name'];
@@ -24,6 +25,28 @@ $filePath = "data.json";
 $app->get('/teams', function (Request $request, Response $response, array $args) use ($filePath) {
 
     $jsonString = file_get_contents($filePath);
+    if ($jsonString === false)
+    {
+        $response->getBody()->write("Error reading file");
+        return $response->withStatus(501);
+    }
+
+    $jsonData = json_decode($jsonString, true);
+    if ($jsonData === null)
+    {
+        $response->getBody()->write("Error parsing file");
+        return $response->withStatus(501);
+    }
+
+    $body = json_encode($jsonData);
+
+    $response->getBody()->write($body);
+    return $response->withHeader('Content-type', 'application/json');
+});
+
+$app->get('/solved_puzzles', function (Request $request, Response $response, array $args) use ($filePathPuzzle) {
+
+    $jsonString = file_get_contents($filePathPuzzle);
     if ($jsonString === false)
     {
         $response->getBody()->write("Error reading file");
@@ -148,18 +171,18 @@ $app->post('/stop', function (Request $request, Response $response, array $args)
 });
 
 
-$app->post('/finish', function (Request $request, Response $response, array $args) use ($filePath) {
+$app->post('/solve', function (Request $request, Response $response, array $args) use ($filePathPuzzle) {
 
     $params = (array)$request->getParsedBody();
 
-    $teamID = $params['id'] ?? null;
-    if ($teamID === null) {
-        $response->getBody()->write("Invalid team ID specified");
+    $puzzleID = $params['id'] ?? null;
+    if ($puzzleID === null) {
+        $response->getBody()->write("Invalid puzzle ID specified");
         return $response->withStatus(501);
     }
-    $teamID = intval($teamID, 10);
+    $puzzleID = intval($puzzleID, 10);
 
-    $jsonString = file_get_contents($filePath);
+    $jsonString = file_get_contents($filePathPuzzle);
     if ($jsonString === false)
     {
         $response->getBody()->write("Error reading file");
@@ -173,19 +196,9 @@ $app->post('/finish', function (Request $request, Response $response, array $arg
         return $response->withStatus(501);
     }
 
-    $teamExists =& findTeamByID($jsonData, $teamID);
-    if (!$teamExists) 
-    {
-        $response->getBody()->write("Team with id $teamID does not exist");
-        return $response->withStatus(501);
-    }
+    $jsonData[] = $puzzleID;
 
-    $endTime = date("c");
-    $teamExists['isFinished'] = true;
-    if (!array_key_exists('endTime', $teamExists)) // for safety
-        $teamExists['endTime'] = $endTime;
-
-    if (file_put_contents($filePath, json_encode($jsonData, JSON_PRETTY_PRINT )) === false) {
+    if (file_put_contents($filePathPuzzle, json_encode($jsonData, JSON_PRETTY_PRINT )) === false) {
         $response->getBody()->write("Could not write file");
         return $response->withStatus(501);
     }

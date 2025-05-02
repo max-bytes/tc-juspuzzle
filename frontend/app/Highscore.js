@@ -31,7 +31,7 @@ export default function Highscore({teams} = props) {
                     <div style={{display: 'flex', gap: '5px'}}>
                         <span style={{width: '22px', display: 'inline-block', textAlign: 'right'}}>{team['rank']}.</span>
                         <span style={{width: '300px', flexGrow: '1', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>{team['name'] === undefined ? '' : team['name']}</span>
-                        <span style={{fontFamily: "monospace"}}>{team['isFinished'] ? msToTime(team['duration']) : '--:--:--'}</span>
+                        <span style={{fontFamily: "monospace"}}>{team['duration'] < Number.MAX_SAFE_INTEGER ? msToTime(team['duration']) : '--:--:--'}</span>
                     </div>
                 </Flipped>;
             })}

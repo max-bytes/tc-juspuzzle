@@ -8,50 +8,48 @@ import { useEffect, useState, useCallback } from "react";
 
 export default function Home() {
 
-  const [data, setData] = useState(undefined);
-  const fetchData = useCallback(async () => {
+  const [teamData, setTeamData] = useState(undefined);
+  const fetchTeamData = useCallback(async () => {
     let response = await fetch("https://api.trickycity.com/juspuzzle/teams");
     response = await response.json();
-    setData(response);
-  }, [setData]);
+    setTeamData(response);
+  }, [setTeamData]);
+  const [solvedPuzzles, setSolvedPuzzles] = useState(undefined);
+  const fetchSolvedPuzzles = useCallback(async () => {
+    let response = await fetch("https://api.trickycity.com/juspuzzle/solved_puzzles");
+    response = await response.json();
+    setSolvedPuzzles(response);
+  }, [setSolvedPuzzles]);
   useEffect(() => {
-    fetchData().catch(console.error);
-  }, [fetchData]);
+    fetchTeamData().catch(console.error);
+    fetchSolvedPuzzles().catch(console.error);
+  }, [fetchTeamData, fetchSolvedPuzzles]);
 
-  const onSolvedF = useCallback(async (teamID) => {
-    let response = await fetch("https://api.trickycity.com/juspuzzle/finish", {
+  const onSolvedF = useCallback(async (puzzleID) => {
+    let response = await fetch("https://api.trickycity.com/juspuzzle/solve", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: teamID }),
+      body: JSON.stringify({ id: puzzleID }),
     });
 
-    await fetchData();
+    await fetchSolvedPuzzles();
   }, []);
 
-  // debug
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     let d = {
-  //       teams: [
-  //         {"id": 1, "name": "foo", "startTime": "2024-10-01T00:00:00Z"},
-  //         {"id": 2, "name": "foo2", "startTime": "2024-10-01T00:00:00Z"},
-  //         {"id": 3, "name": "foo3", "startTime": "2024-10-01T00:00:00Z"},
-  //       ]
-  //     };
-  //     shuffleArray(d.teams);
-  //     shuffleArray(d);
-  //     setData(d)
-  //   }, 1000);
-  //   return () => clearInterval(interval);
-  // }, []);
+  // update team data continuously
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchTeamData().catch(console.error);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
-  if (data) {
-    let teams = data.teams;
+  if (teamData && solvedPuzzles) {
+    let teams = teamData.teams;
     for(const team of teams) {
         team['startTimeDate'] = new Date(team['startTime']);
-        if ((team['endTime'] ?? undefined) && team['isFinished']) {
+        if (team['endTime']) {
             team['endTimeDate'] = new Date(team['endTime']);
             team['duration'] = team['endTimeDate'].getTime() - team['startTimeDate'].getTime();
         } else {
@@ -65,7 +63,7 @@ export default function Home() {
 
     return (
       <div className={styles.page}>
-        <Puzzle teams={teams} onSolvedF={onSolvedF} />
+        <Puzzle solvedPuzzles={solvedPuzzles} onSolvedF={onSolvedF} />
         <Highscore teams={teams} />
       </div>
     );
