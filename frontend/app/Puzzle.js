@@ -3,21 +3,8 @@
 import styles from "./page.module.css";
 import { useEffect, useState, useLayoutEffect } from "react";
 
-// const numFigures = 3;
-// const gridFigureIndices = [
-//     [0,0,1],
-//     [0,1,1],
-//     [2,2,2],
-// ]
-// const correctGridNumbers = [
-//     [3,3,4],
-//     [3,4,4],
-//     [5,5,5],
-// ]
-// const initialGridNumbers = Array(3).fill(Array(3).fill(undefined))
-
-const numFigures = 30;
-const gridFigureIndices = [
+export const numFigures = 30;
+export const gridFigureIndices = [
     [1,2,2,3,3,4,4,5,5,5],
     [1,2,2,3,4,4,4,5,5,5],
     [1,2,6,6,6,6,6,6,7,5],
@@ -39,7 +26,7 @@ const gridFigureIndices = [
     [27,27,28,28,28,29,25,29,30,30],
     [27,27,27,28,28,29,29,29,30,30],
 ]
-const correctGridNumbers = [
+export const correctGridNumbers = [
     [2,3,4,3,1,4,4,9,8,9],
     [4,2,8,5,5,4,3,2,7,8],
     [7,2,6,3,3,5,4,3,6,3],
@@ -61,7 +48,7 @@ const correctGridNumbers = [
     [5,9,3,5,3,9,3,7,7,7],
     [6,8,4,8,4,3,6,8,1,9],
 ]
-const cellTypes = [
+export const cellTypes = [
     [3,3,3,3,3,3,3,3,3,4],
     [2,2,2,2,2,2,2,2,2,4],
     [2,1,1,1,1,1,1,1,1,4],
@@ -83,7 +70,6 @@ const cellTypes = [
     [4,2,2,2,2,2,2,3,2,3],
     [4,4,4,4,2,4,4,3,4,3],
 ]
-const initialGridNumbers = Array(20).fill(Array(10).fill(undefined))
 
 function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, gridNumber, isCorrect, updateGridNumber, type, wiggle} = props) {
 
@@ -98,8 +84,8 @@ function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, grid
     };
 
     const neighborSameFigure = neighborFigureIndices.map(nfi => nfi === figureIndex);
-    const borders = neighborSameFigure.map(nsf => nsf ? "none" : "2px solid black");
-    const paddings = neighborSameFigure.map(nsf => nsf ? "2px" : "0px");
+    const borders = neighborSameFigure.map(nsf => nsf ? "none" : "4px solid black");
+    const paddings = neighborSameFigure.map(nsf => nsf ? "4px" : "0px");
     const correctClass = isCorrect ? styles.correct : styles.incorrect;
     const hasNumberClass = gridNumber ? styles.hasNumber : undefined;
     const typeClass = styles[`type${type}`];
@@ -114,8 +100,10 @@ function Cell({width, height, figureIndex, neighborFigureIndices, tabIndex, grid
 
 export default function Puzzle({solvedPuzzles, onSolvedF} = props) {
 
+    const initialGridNumbers = Array(20).fill(Array(10).fill(undefined))
     const [currentGridNumbers, setCurrentGridNumbers] = useState(initialGridNumbers);
     const correctFigures = Array.apply(null, Array(numFigures)).map(function (x, i) { return solvedPuzzles.findIndex(t => t === i + 1) !== -1; });
+    const allCorrect = correctFigures.length === numFigures && correctFigures.every((v) => v === true);
     const [wiggle, setWiggle] = useState(false);
     useEffect(() => {
         if (wiggle)
@@ -158,38 +146,45 @@ export default function Puzzle({solvedPuzzles, onSolvedF} = props) {
             setWiggle(true);
         }
     }, [currentGridNumbers, setCurrentGridNumbers, setWiggle, onSolvedF]);
-
+    
     const width=40;
     const height=40;
-    
-    let rows = [];
-    for(let y = 0;y < gridFigureIndices.length;y++) {
-        let rowCells = [];
-        for(let x = 0;x < gridFigureIndices[y].length;x++) {
-            const matrixIndex = y * gridFigureIndices[y].length + x;
-            const figureIndex = gridFigureIndices[y][x];
-            rowCells.push(<Cell tabIndex={matrixIndex} key={matrixIndex} 
-                width={width} height={height} 
-                figureIndex={figureIndex}
-                wiggle={wiggle}
-                neighborFigureIndices={[gridFigureIndices[y - 1]?.[x],gridFigureIndices[y]?.[x + 1],gridFigureIndices[y + 1]?.[x],gridFigureIndices[y]?.[x - 1]]}
-                gridNumber={currentGridNumbers[y][x]}
-                isCorrect={correctFigures[figureIndex - 1]}
-                type={cellTypes[y][x]}
-                updateGridNumber={(newNumber) => {
-                    setCurrentGridNumbers(oldNumbers => {
-                        let newGridNumbers = oldNumbers.map(function(arr) {
-                            return arr.slice();
-                        });
-                        newGridNumbers[y][x] = newNumber;
-                        return newGridNumbers;
-                    })
-                }} />);
-        }
-        rows.push(<div key={y} style={{whiteSpace: 'nowrap', minWidth: '0px'}}>{rowCells}</div>);
-    }
 
-    return <div className={styles.puzzle} style={{width: `${(width - 2) * gridFigureIndices[0].length}px`, height: `${(height - 2) * gridFigureIndices.length}px`}}>
-        {rows}
-    </div>;
+    if (allCorrect) {
+        return <div className={styles.puzzle} style={{width: `${(width - 2) * gridFigureIndices[0].length}px`, height: `${(height - 2) * gridFigureIndices.length}px`,
+            display: "flex", justifyContent: 'center', alignItems: 'center', margin: "auto"}}>
+            <div style={{backgroundColor: '#000000cc', padding: '20px', borderRadius: '20px', fontSize: '60px', textAlign: 'center', color: '#00cc00'}}>Zugriff auf alle Dateien wiederhergestellt!</div>
+        </div>;
+    } else {
+        let rows = [];
+        for(let y = 0;y < gridFigureIndices.length;y++) {
+            let rowCells = [];
+            for(let x = 0;x < gridFigureIndices[y].length;x++) {
+                const matrixIndex = y * gridFigureIndices[y].length + x;
+                const figureIndex = gridFigureIndices[y][x];
+                rowCells.push(<Cell tabIndex={matrixIndex} key={matrixIndex} 
+                    width={width} height={height} 
+                    figureIndex={figureIndex}
+                    wiggle={wiggle}
+                    neighborFigureIndices={[gridFigureIndices[y - 1]?.[x],gridFigureIndices[y]?.[x + 1],gridFigureIndices[y + 1]?.[x],gridFigureIndices[y]?.[x - 1]]}
+                    gridNumber={currentGridNumbers[y][x]}
+                    isCorrect={correctFigures[figureIndex - 1]}
+                    type={cellTypes[y][x]}
+                    updateGridNumber={(newNumber) => {
+                        setCurrentGridNumbers(oldNumbers => {
+                            let newGridNumbers = oldNumbers.map(function(arr) {
+                                return arr.slice();
+                            });
+                            newGridNumbers[y][x] = newNumber;
+                            return newGridNumbers;
+                        })
+                    }} />);
+            }
+            rows.push(<div key={y} style={{whiteSpace: 'nowrap', minWidth: '0px'}}>{rowCells}</div>);
+        }
+    
+        return <div className={styles.puzzle} style={{width: `${(width - 2) * gridFigureIndices[0].length}px`, height: `${(height - 2) * gridFigureIndices.length}px`}}>
+            {rows}
+        </div>;
+    }
 }

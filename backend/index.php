@@ -172,7 +172,6 @@ $app->post('/stop', function (Request $request, Response $response, array $args)
 
 
 $app->post('/solve', function (Request $request, Response $response, array $args) use ($filePathPuzzle) {
-
     $params = (array)$request->getParsedBody();
 
     $puzzleID = $params['id'] ?? null;
@@ -197,6 +196,43 @@ $app->post('/solve', function (Request $request, Response $response, array $args
     }
 
     $jsonData[] = $puzzleID;
+
+    if (file_put_contents($filePathPuzzle, json_encode($jsonData, JSON_PRETTY_PRINT )) === false) {
+        $response->getBody()->write("Could not write file");
+        return $response->withStatus(501);
+    }
+
+    return $response;
+});
+
+
+$app->post('/unsolve', function (Request $request, Response $response, array $args) use ($filePathPuzzle) {
+    $params = (array)$request->getParsedBody();
+
+    $puzzleID = $params['id'] ?? null;
+    if ($puzzleID === null) {
+        $response->getBody()->write("Invalid puzzle ID specified");
+        return $response->withStatus(501);
+    }
+    $puzzleID = intval($puzzleID, 10);
+
+    $jsonString = file_get_contents($filePathPuzzle);
+    if ($jsonString === false)
+    {
+        $response->getBody()->write("Error reading file");
+        return $response->withStatus(501);
+    }
+
+    $jsonData = json_decode($jsonString, true);
+    if ($jsonData === null)
+    {
+        $response->getBody()->write("Error parsing file");
+        return $response->withStatus(501);
+    }
+
+    $jsonData = array_values(array_filter($jsonData, function($i) use ($puzzleID) {
+        return $i !== $puzzleID;
+    }));
 
     if (file_put_contents($filePathPuzzle, json_encode($jsonData, JSON_PRETTY_PRINT )) === false) {
         $response->getBody()->write("Could not write file");

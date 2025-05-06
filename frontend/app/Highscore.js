@@ -23,7 +23,7 @@ export default function Highscore({teams} = props) {
     }
 
     return <div>
-        <h1 style={{textAlign: 'center', paddingBottom: '10px'}}>Highscores</h1>
+        <h1 style={{textAlign: 'center', paddingBottom: '10px'}}>Ranking</h1>
         <div style={{display: 'flex', flexDirection: 'column', gap: '3px'}}>
             <Flipper flipKey={finalScores.map(fs => JSON.stringify(fs)).join('')}>
             { finalScores.map(team => {

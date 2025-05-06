@@ -1,8 +1,7 @@
 'use client'
 
-import styles from "./page.module.css";
-import Puzzle from "./Puzzle";
-
+import PuzzleAdmin from "./PuzzleAdmin";
+import styles from "../page.module.css";
 import { useEffect, useState, useCallback } from "react";
 
 export default function Home() {
@@ -17,7 +16,7 @@ export default function Home() {
     fetchSolvedPuzzles().catch(console.error);
   }, [fetchSolvedPuzzles]);
 
-  const onSolvedF = useCallback(async (puzzleID) => {
+  const onSolveF = useCallback(async (puzzleID) => {
     let response = await fetch("https://api.trickycity.com/juspuzzle/solve", {
       method: "POST",
       headers: {
@@ -25,14 +24,25 @@ export default function Home() {
       },
       body: JSON.stringify({ id: puzzleID }),
     });
-
+    await fetchSolvedPuzzles();
+  }, []);
+  
+  const onUnsolveF = useCallback(async (puzzleID) => {
+    let response = await fetch("https://api.trickycity.com/juspuzzle/unsolve", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: puzzleID }),
+    });
     await fetchSolvedPuzzles();
   }, []);
 
   if (solvedPuzzles) {
     return (
-      <div className={styles.page}>
-        <Puzzle solvedPuzzles={solvedPuzzles} onSolvedF={onSolvedF} />
+      <div>
+        <h1 style={{textAlign: 'center'}}>Admin</h1>
+        <PuzzleAdmin solvedPuzzles={solvedPuzzles} onSolveF={onSolveF} onUnsolveF={onUnsolveF} />
       </div>
     );
   } else {

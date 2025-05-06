@@ -1,7 +1,9 @@
 
-.puzzle {
-  background-image: url(/tc-juspuzzle/cabinet.png);
-  background-size: cover;
+.page {
+  background-image: url(/tc-juspuzzle/filexplorer.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .puzzle .cell {
@@ -28,13 +30,13 @@
 } */
 
 .puzzle .cell.type1 {
-  background-color: #ffba08;
+  background-color: #ffff00;
 }
 .puzzle .cell.type2 {
   background-color: #f48c06;
 }
 .puzzle .cell.type3 {
-  background-color: #dc2f02;
+  background-color: #ff0000;
 }
 .puzzle .cell.type4 {
   background-color: #9d0208;
@@ -57,6 +59,10 @@
   scale:4;
   color:#00000000;
   transition-property: opacity, scale;
+}
+
+.correct-admin {
+  filter: brightness(30%);
 }
 
 .incorrect {
