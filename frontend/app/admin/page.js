@@ -26,6 +26,15 @@ export default function Home() {
     });
     await fetchSolvedPuzzles();
   }, []);
+
+  const resetRankings = useCallback(async () => {
+    let response = await fetch("https://api.trickycity.com/juspuzzle/reset-rankings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    });
+  }, []);
   
   const onUnsolveF = useCallback(async (puzzleID) => {
     let response = await fetch("https://api.trickycity.com/juspuzzle/unsolve", {
@@ -43,6 +52,8 @@ export default function Home() {
       <div>
         <h1 style={{textAlign: 'center'}}>Admin</h1>
         <PuzzleAdmin solvedPuzzles={solvedPuzzles} onSolveF={onSolveF} onUnsolveF={onUnsolveF} />
+
+        <button onClick={resetRankings} style={{margin: '10px'}}>Reset Rankings</button>
       </div>
     );
   } else {

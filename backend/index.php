@@ -171,6 +171,15 @@ $app->post('/stop', function (Request $request, Response $response, array $args)
 });
 
 
+$app->post('/reset-rankings', function (Request $request, Response $response, array $args) use ($filePath) {
+    $jsonData = ["teams" => []];
+    if (file_put_contents($filePath, json_encode($jsonData, JSON_PRETTY_PRINT )) === false) {
+        $response->getBody()->write("Could not write file");
+        return $response->withStatus(501);
+    }
+    return $response;
+});
+
 $app->post('/solve', function (Request $request, Response $response, array $args) use ($filePathPuzzle) {
     $params = (array)$request->getParsedBody();
 
