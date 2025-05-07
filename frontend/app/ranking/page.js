@@ -32,7 +32,7 @@ export default function Home() {
         team['startTimeDate'] = new Date(team['startTime']);
         if (team['endTime']) {
             team['endTimeDate'] = new Date(team['endTime']);
-            team['duration'] = team['endTimeDate'].getTime() - team['startTimeDate'].getTime();
+            team['duration'] = (team['endTimeDate'].getTime() - team['startTimeDate'].getTime()) + team['penaltiesSeconds'] * 1000;
         } else {
             team['duration'] = Number.MAX_SAFE_INTEGER;
         }
