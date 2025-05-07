@@ -136,7 +136,8 @@ $app->post('/stop', function (Request $request, Response $response, array $args)
         return $response->withStatus(501);
     }
     $teamID = intval($teamID, 10);
-
+    
+    $penaltiesSeconds = $params['penaltiesSeconds'] ?? 0;
 
     $jsonString = file_get_contents($filePath);
     if ($jsonString === false)
@@ -161,6 +162,7 @@ $app->post('/stop', function (Request $request, Response $response, array $args)
 
     $endTime = date("c");
     $teamExists['endTime'] = $endTime;
+    $teamExists['penaltiesSeconds'] = $penaltiesSeconds;
 
     if (file_put_contents($filePath, json_encode($jsonData, JSON_PRETTY_PRINT )) === false) {
         $response->getBody()->write("Could not write file");
@@ -309,7 +311,8 @@ example data structure
             "id": 2,
             "name": "B-Team",
             "startTime": "2024-28-10T12:00:00Z",
-            "endTime": "2024-28-10T13:00:00Z"
+            "endTime": "2024-28-10T13:00:00Z",
+            "penaltiesSeconds": 120
         }
     ]
 }
